@@ -1,10 +1,9 @@
-package com.programmerbaper.skripsi;
+package com.programmerbaper.skripsi.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,12 +21,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.programmerbaper.skripsi.R;
 
 public class DagangActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LocationManager mLocationManager;
-    private static final int REQUEST_LOCATION_PERMISSION = 1;
     private Marker mMarker;
     private LocationListener mLocationListener;
     private ProgressDialog progressDialog = null;
@@ -68,8 +67,8 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
 
     private void initProgressDialog() {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Loading");
-        progressDialog.setMessage("Sedang Memproses..");
+        progressDialog.setTitle(getString(R.string.loading));
+        progressDialog.setMessage(getString(R.string.processing));
         progressDialog.setCancelable(false);
     }
 
@@ -82,7 +81,7 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
             // Permission is not granted
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Toast.makeText(this, "Membutuhkan Izin Lokasi", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.permission_request, Toast.LENGTH_SHORT).show();
             } else {
 
                 // No explanation needed; request the permission
@@ -92,7 +91,7 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
             }
         } else {
             // Permission has already been granted
-            Toast.makeText(this, "Izin Lokasi diberikan", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.permission_granted, Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -107,20 +106,17 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
 
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
-                Geocoder geocoder = new Geocoder(getApplicationContext());
 
                 LatLng latLng = new LatLng(latitude, longitude);
                 if (mMarker != null) {
                     mMarker.remove();
-                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Posisi Dagang Anda").
+                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(getString(R.string.map_marker_dagang)).
                             icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gerobag)));
-//                        mMap.setMaxZoomPreference(20);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                 } else {
-                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Posisi Dagang Anda").
+                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(getString(R.string.map_marker_dagang)).
                             icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gerobag)));
-//                        mMap.setMaxZoomPreference(20);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
                 }
 
