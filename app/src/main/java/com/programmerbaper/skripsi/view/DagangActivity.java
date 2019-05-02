@@ -1,4 +1,4 @@
-package com.programmerbaper.skripsi;
+package com.programmerbaper.skripsi.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.programmerbaper.skripsi.R;
 
 public class DagangActivity extends FragmentActivity implements OnMapReadyCallback {
 
