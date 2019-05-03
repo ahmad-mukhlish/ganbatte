@@ -33,6 +33,10 @@ dependencies {
     //maps utils
     implementation 'com.google.maps.android:android-maps-utils:0.4+'
 
+    //picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+
     //retrofit
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'

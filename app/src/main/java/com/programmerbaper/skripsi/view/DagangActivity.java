@@ -3,15 +3,19 @@ package com.programmerbaper.skripsi.view;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,7 +28,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.programmerbaper.skripsi.R;
 
-public class DagangActivity extends FragmentActivity implements OnMapReadyCallback {
+public class DagangActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LocationManager mLocationManager;
@@ -32,6 +36,10 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
     private Marker mMarker;
     private LocationListener mLocationListener;
     private ProgressDialog progressDialog = null;
+    private Button mKeliling;
+    private boolean berkeliling;
+    private double latitude;
+    private double longitude;
 
 
     @Override
@@ -41,14 +49,61 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        getSupportActionBar().setTitle("Dagang Keliling App");
+        berkeliling = false;
 
         initProgressDialog();
         initPermission();
 
+        mKeliling = findViewById(R.id.keliling);
+        mKeliling.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!berkeliling) {
+
+                    berkeliling = true;
+                    mKeliling.setText("Stop Keliling");
+                    mKeliling.setBackground(getResources().getDrawable(R.drawable.round_red_button));
+
+
+                } else {
+
+                    berkeliling = false;
+                    mKeliling.setText("Mulai Keliling");
+                    mKeliling.setBackground(getResources().getDrawable(R.drawable.round_button));
+
+
+                }
+
+
+            }
+        });
+
 
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_dagang, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.owm:
+                Intent intent = new Intent(this, CuacaActivity.class);
+                intent.putExtra("lat", latitude);
+                intent.putExtra("lon", longitude);
+                startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -106,9 +161,9 @@ public class DagangActivity extends FragmentActivity implements OnMapReadyCallba
             @Override
             public void onLocationChanged(Location location) {
 
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-                Geocoder geocoder = new Geocoder(getApplicationContext());
+
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
 
                 LatLng latLng = new LatLng(latitude, longitude);
                 if (mMarker != null) {

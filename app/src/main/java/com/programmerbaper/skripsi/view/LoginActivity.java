@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         btnLogin = findViewById(R.id.btnLogin);
 
-//        initPreferences();
+        initPreferences();
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,22 +55,22 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-//    private void initPreferences() {
-//        pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-//        String id = pref.getString(ID_USER, "");
-//        if (id.contains("1")) {
-//            //TODO jika dia id-nya satu masuk ke pedagang
-////            Intent intent = new Intent(LoginActivity.this, OwnerMenuActivity.class);
-////            startActivity(intent);
-////            finish();
-//        } else if (id.contains("2")) {
-//            //TODO jika dia id-nya satu masuk ke pembeli
-////            Intent intent = new Intent(LoginActivity.this, SalesMenuActivity.class);
-////            startActivity(intent);
-////            finish();
-//        }
-//    }
-//
+    private void initPreferences() {
+        pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String id = pref.getString(ID_USER, "");
+        if (id.contains("1")) {
+            //TODO jika dia id-nya satu masuk ke pedagang
+//            Intent intent = new Intent(LoginActivity.this, OwnerMenuActivity.class);
+//            startActivity(intent);
+//            finish();
+        } else if (id.contains("2")) {
+            //TODO jika dia id-nya satu masuk ke pembeli
+//            Intent intent = new Intent(LoginActivity.this, SalesMenuActivity.class);
+//            startActivity(intent);
+//            finish();
+        }
+    }
+
 
 
     private void requestLogin() {
