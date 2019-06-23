@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.model.api.Lokasi;
 import com.programmerbaper.skripsi.services.TrackingService;
 
 import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
@@ -41,6 +42,7 @@ import static com.programmerbaper.skripsi.config.Config.ID_USER;
 import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
 import static com.programmerbaper.skripsi.config.Config.PASSWORD;
 import static com.programmerbaper.skripsi.config.Config.USERNAME;
+import static java.lang.Integer.parseInt;
 
 public class DagangActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -51,9 +53,11 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
     private LocationListener mLocationListener;
     private ProgressDialog progressDialog = null;
     private Button mKeliling;
-    private boolean berkeliling;
+    public static boolean berkeliling;
     private double latitude;
     private double longitude;
+
+
 
 
     @Override
@@ -75,6 +79,8 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
             public void onClick(View view) {
 
                 if (!berkeliling) {
+
+                    berkeliling = true;
 
                     //Check whether GPS tracking is enabled//
 
@@ -107,13 +113,14 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
                     root.child("keliling").setValue(true) ;
 
 
-                    berkeliling = true;
+
                     mKeliling.setText("Stop Keliling");
                     mKeliling.setBackground(getResources().getDrawable(R.drawable.round_red_button));
 
 
                 } else {
 
+                    berkeliling = false;
                     //Check whether GPS tracking is enabled//
 
                     LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -143,7 +150,14 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
                             .child("pmk"+idPemilik).child("status").child("pdg"+id);
 
                     root.child("keliling").setValue(false) ;
-                    berkeliling = false;
+
+                    DatabaseReference rootStop = FirebaseDatabase.getInstance().getReference()
+                            .child("pmk"+idPemilik).child("lokasi").child("pdg"+id);
+
+
+
+
+
                     mKeliling.setText("Mulai Keliling");
                     mKeliling.setBackground(getResources().getDrawable(R.drawable.round_button));
 

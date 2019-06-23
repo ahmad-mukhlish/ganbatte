@@ -24,12 +24,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.model.api.Lokasi;
 
 import androidx.core.content.ContextCompat;
 
 import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.config.Config.ID_USER;
 import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
+import static com.programmerbaper.skripsi.view.DagangActivity.berkeliling;
+import static java.lang.Integer.parseInt;
 
 public class TrackingService extends Service {
     private static final String TAG = TrackingService.class.getSimpleName();
@@ -132,13 +135,22 @@ public class TrackingService extends Service {
                             .child("pmk"+idPemilik).child("lokasi").child("pdg"+id);
 
 
+                    if (!id.isEmpty()) {
                     Location location = locationResult.getLastLocation();
+                    Lokasi lokasi = new Lokasi(location.getLatitude(), location.getLongitude(), Integer.parseInt(id), berkeliling);
+
+
                     if (location != null) {
 
                         //Save the location data to the database//
 
-                        root.setValue(location);
+                        root.setValue(lokasi);
                     }
+
+
+                    }
+
+
                 }
             }, null);
         }
