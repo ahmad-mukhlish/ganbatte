@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "437659920533",
+    "firebase_url": "https://pedagangkeliling99.firebaseio.com",
+    "project_id": "pedagangkeliling99",
+    "storage_bucket": "pedagangkeliling99.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437659920533:android:78418c3cfb8ab3ed",
+        "android_client_info": {
+          "package_name": "com.programmerbaper.skripsi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "437659920533-l1oltr4pkc5hljhdf48gv8ojk39m4nt4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.programmerbaper.skripsi",
+            "certificate_hash": "46a475ba2c4ceba150eed4a82178e22608399d8e"
+          }
+        },
+        {
+          "client_id": "437659920533-cj8dvdcgb5n69ougn7nki30nclr5d5p0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADJNX-WCZqWIgE4sObIJF6Hgt_aX_j0c4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "437659920533-cj8dvdcgb5n69ougn7nki30nclr5d5p0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

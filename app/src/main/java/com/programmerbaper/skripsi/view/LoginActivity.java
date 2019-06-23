@@ -1,10 +1,10 @@
 package com.programmerbaper.skripsi.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,17 +12,32 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.model.api.Pedagang;
+import com.programmerbaper.skripsi.retrofit.api.APIClient;
+import com.programmerbaper.skripsi.retrofit.api.APIInterface;
 
+import androidx.appcompat.app.AppCompatActivity;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.config.Config.ID_USER;
 import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
+import static com.programmerbaper.skripsi.config.Config.PASSWORD;
+import static com.programmerbaper.skripsi.config.Config.USERNAME;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText username, password;
     private Button btnLogin;
     private String user, pass;
+    private ProgressDialog dialog;
     private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
 
     @Override
@@ -38,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         btnLogin = findViewById(R.id.btnLogin);
 
+        initProgressDialog();
         initPreferences();
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -58,72 +74,63 @@ public class LoginActivity extends AppCompatActivity {
     private void initPreferences() {
         pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String id = pref.getString(ID_USER, "");
-        if (id.contains("1")) {
-            //TODO jika dia id-nya satu masuk ke pedagang
-//            Intent intent = new Intent(LoginActivity.this, OwnerMenuActivity.class);
-//            startActivity(intent);
-//            finish();
-        } else if (id.contains("2")) {
-            //TODO jika dia id-nya satu masuk ke pembeli
-//            Intent intent = new Intent(LoginActivity.this, SalesMenuActivity.class);
-//            startActivity(intent);
-//            finish();
+        if (!id.equals("")) {
+            Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
+            startActivity(intent);
         }
     }
 
-
+    private void initProgressDialog() {
+        dialog = new ProgressDialog(this);
+        dialog.setTitle("Login");
+        dialog.setMessage("Sedang Memeriksa..");
+        dialog.setCancelable(false);
+    }
 
     private void requestLogin() {
 
+        dialog.show();
 
-        if (user.equals("admin") && pass.equals("admin")) {
-            Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(LoginActivity.this, "Username atau Password Salah", Toast.LENGTH_SHORT).show();
-        }
+        APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+        Call<Pedagang> call = apiInterface.getUser(user, pass);
+        call.enqueue(new Callback<Pedagang>() {
+            @Override
+            public void onResponse(Call<Pedagang> call, Response<Pedagang> response) {
+                Pedagang pedagang = response.body();
+
+                if (!pedagang.getNama().equals("Password Salah")) {
+                    dialog.dismiss();
+                    editor = pref.edit();
+                    editor.putString(ID_USER, String.valueOf(pedagang.getIdPedagang()));
+                    editor.putString(ID_PEMILIK, String.valueOf(pedagang.getIdPemilik()));
+                    editor.putString(USERNAME, String.valueOf(pedagang.getUsername()));
+                    editor.putString(PASSWORD, String.valueOf(pedagang.getPassword()));
+                    editor.apply();
+
+                    DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                            .child("pmk" + pedagang.getIdPemilik()).child("status"
+                            ).child("pdg" + pedagang.getIdPedagang()
+                            );
+
+                    root.child("login").setValue(true);
 
 
-//        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-//        Call<User> call = apiInterface.getUser(user, pass);
-//        call.enqueue(new Callback<User>() {
-//            @Override
-//            public void onResponse(Call<User> call, Response<User> response) {
-//                User user = response.body();
+                    Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    dialog.dismiss();
+                    Toast.makeText(LoginActivity.this, "Username atau Password Salah", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-//                if (user.getMessage().equals("success")) {
-//                    Log.d(DEBUG,user.getNama());
-//                    dialog.dismiss();
-//                    editor = pref.edit();
-//                    editor.putString(ID_USER, String.valueOf(user.getIdUser()));
-//                    editor.putString(NAMA_USER, user.getNama());
-//                    editor.putString(KTP_SALES, user.getNoKtpSales());
-//                    editor.putString(ACCESTOKEN, user.getAccesToken());
-//                    editor.putInt("STATUS", user.getStatus());
-//                    editor.apply();
-//                    if (user.getStatus()==1) {
-//                        Intent intent = new Intent(LoginActivity.this, OwnerMenuActivity.class);
-//                        startActivity(intent);
-//                        finish();
-//                    } else {
-//                        Intent intent = new Intent(LoginActivity.this, SalesMenuActivity.class);
-//                        startActivity(intent);
-//                        finish();
-//                    }
-//                } else {
-//                    dialog.dismiss();
-//                    Toast.makeText(LoginActivity.this, "Username atau Password Salah", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-
-//            @Override
-//            public void onFailure(Call<User> call, Throwable t) {
-//                dialog.dismiss();
-//                t.printStackTrace();
-//                Toast.makeText(LoginActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+            @Override
+            public void onFailure(Call<Pedagang> call, Throwable t) {
+                dialog.dismiss();
+                t.printStackTrace();
+                Toast.makeText(LoginActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }

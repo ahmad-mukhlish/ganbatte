@@ -2,16 +2,21 @@ package com.programmerbaper.skripsi.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +31,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.services.TrackingService;
+
+import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
+import static com.programmerbaper.skripsi.config.Config.ID_USER;
+import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
+import static com.programmerbaper.skripsi.config.Config.PASSWORD;
+import static com.programmerbaper.skripsi.config.Config.USERNAME;
 
 public class DagangActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -62,6 +76,37 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
                 if (!berkeliling) {
 
+                    //Check whether GPS tracking is enabled//
+
+                    LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        finish();
+                    }
+
+                    //Check whether this app has access to the location permission//
+
+                    int permission = ContextCompat.checkSelfPermission(DagangActivity.this,
+                            Manifest.permission.ACCESS_FINE_LOCATION);
+
+                    //If the location permission has been granted, then start the TrackerService//
+
+                    if (permission == PackageManager.PERMISSION_GRANTED) {
+                        startService(new Intent(DagangActivity.this, TrackingService.class));
+                    } else {
+                        initPermission();
+                    }
+
+                    SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+                    String id = pref.getString(ID_USER, "");
+                    String idPemilik = pref.getString(ID_PEMILIK, "");
+
+
+                    DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                            .child("pmk"+idPemilik).child("status").child("pdg"+id);
+
+                    root.child("keliling").setValue(true) ;
+
+
                     berkeliling = true;
                     mKeliling.setText("Stop Keliling");
                     mKeliling.setBackground(getResources().getDrawable(R.drawable.round_red_button));
@@ -69,6 +114,35 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
                 } else {
 
+                    //Check whether GPS tracking is enabled//
+
+                    LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+                    if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        finish();
+                    }
+
+                    //Check whether this app has access to the location permission//
+
+                    int permission = ContextCompat.checkSelfPermission(DagangActivity.this,
+                            Manifest.permission.ACCESS_FINE_LOCATION);
+
+                    //If the location permission has been granted, then start the TrackerService//
+
+                    if (permission == PackageManager.PERMISSION_GRANTED) {
+                        stopService(new Intent(DagangActivity.this, TrackingService.class));
+                    } else {
+                        initPermission();
+                    }
+
+                    SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+                    String id = pref.getString(ID_USER, "");
+                    String idPemilik = pref.getString(ID_PEMILIK, "");
+
+
+                    DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                            .child("pmk"+idPemilik).child("status").child("pdg"+id);
+
+                    root.child("keliling").setValue(false) ;
                     berkeliling = false;
                     mKeliling.setText("Mulai Keliling");
                     mKeliling.setBackground(getResources().getDrawable(R.drawable.round_button));
@@ -79,6 +153,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
             }
         });
+
 
 
     }
@@ -93,13 +168,43 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.owm:
+            case R.id.owm: {
                 Intent intent = new Intent(this, CuacaActivity.class);
                 intent.putExtra("lat", latitude);
                 intent.putExtra("lon", longitude);
                 startActivity(intent);
                 return true;
+            }
+            case R.id.logout : {
 
+
+                SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+                String id = pref.getString(ID_USER, "");
+                String idPemilik = pref.getString(ID_PEMILIK, "");
+
+
+                DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                        .child("pmk"+idPemilik).child("status").child("pdg"+id);
+
+                root.child("login").setValue(false) ;
+
+                //TODO turn off tracker
+
+
+                //flush shared preferences
+                SharedPreferences.Editor editor = pref.edit();
+
+
+                editor.putString(ID_USER, "");
+                editor.putString(ID_PEMILIK, "");
+                editor.putString(USERNAME, "");
+                editor.putString(PASSWORD, "");
+
+                editor.commit();
+
+                Intent intent = new Intent(DagangActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -205,6 +310,26 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, mLocationListener);
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, mLocationListener);
 
+
+    }
+
+
+
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        boolean cik = isMyServiceRunning(TrackingService.class) ;
+        Log.v("cik", "nilai cik" + cik) ;
 
     }
 }
