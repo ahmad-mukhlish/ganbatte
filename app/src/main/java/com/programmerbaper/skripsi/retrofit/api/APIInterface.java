@@ -14,7 +14,7 @@ import retrofit2.http.Query;
 public interface APIInterface {
 
     @FormUrlEncoded
-    @POST("loginAPI")
+    @POST("login")
     Call<Pedagang> getUser(@Field("username") String username,
                            @Field("password") String password);
 

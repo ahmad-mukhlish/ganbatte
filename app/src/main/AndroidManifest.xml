@@ -15,18 +15,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.CuacaActivity"
-            android:parentActivityName=".view.DagangActivity"/>
-        <activity android:name=".view.LoginActivity" />
+        <activity android:name=".activities.CuacaActivity"
+            android:parentActivityName=".activities.DagangActivity"/>
+        <activity android:name=".activities.LoginActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".view.DagangActivity"
+            android:name=".activities.DagangActivity"
             android:label="@string/title_activity_dagang" />
-        <activity android:name=".view.SplashScreenActivity">
+        <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

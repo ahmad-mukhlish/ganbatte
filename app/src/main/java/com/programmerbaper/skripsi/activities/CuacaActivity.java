@@ -1,4 +1,4 @@
-package com.programmerbaper.skripsi.view;
+package com.programmerbaper.skripsi.activities;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -38,12 +38,8 @@ public class CuacaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cuaca);
         getSupportActionBar().setTitle("Cuaca");
 
+        bind();
         initProgressDialog();
-        recyclerView = findViewById(R.id.rvCuaca);
-
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
         getCuaca();
 
 
@@ -103,6 +99,14 @@ public class CuacaActivity extends AppCompatActivity {
         dialog.setTitle("Loading");
         dialog.setMessage("Sedang Memproses..");
         dialog.setCancelable(false);
+    }
+
+    private void bind() {
+
+        recyclerView = findViewById(R.id.rvCuaca);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
     }
 
 }

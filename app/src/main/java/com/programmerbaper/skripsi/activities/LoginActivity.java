@@ -1,10 +1,11 @@
-package com.programmerbaper.skripsi.view;
+package com.programmerbaper.skripsi.activities;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -30,11 +31,9 @@ import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
 import static com.programmerbaper.skripsi.config.Config.PASSWORD;
 import static com.programmerbaper.skripsi.config.Config.USERNAME;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText username, password;
-    private Button btnLogin;
-    private String user, pass;
     private ProgressDialog dialog;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -49,26 +48,28 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         getSupportActionBar().hide();
 
-        username = findViewById(R.id.username);
-        password = findViewById(R.id.password);
-        btnLogin = findViewById(R.id.btnLogin);
 
+        bind();
         initProgressDialog();
         initPreferences();
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                user = username.getText().toString();
-                pass = password.getText().toString();
+    }
 
-                if (user.equals("") && pass.equals("")) {
-                    Toast.makeText(LoginActivity.this, "Username dan Password Harus Diisi", Toast.LENGTH_SHORT).show();
-                } else {
-                    requestLogin();
-                }
-            }
-        });
+    private void bind() {
+
+        username = findViewById(R.id.username);
+        password = findViewById(R.id.password);
+        Button btnLogin = findViewById(R.id.btnLogin);
+
+        btnLogin.setOnClickListener(this);
+    }
+
+
+    private void initProgressDialog() {
+        dialog = new ProgressDialog(this);
+        dialog.setTitle("Login");
+        dialog.setMessage("Sedang Memeriksa..");
+        dialog.setCancelable(false);
     }
 
     private void initPreferences() {
@@ -80,14 +81,19 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void initProgressDialog() {
-        dialog = new ProgressDialog(this);
-        dialog.setTitle("Login");
-        dialog.setMessage("Sedang Memeriksa..");
-        dialog.setCancelable(false);
+
+    private void writeStatusToFirebase(int idPemilik, int idPedagang) {
+
+        DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                .child("pemilik").child("pmk" + idPemilik).child("status"
+                ).child("pdg" + idPedagang
+                );
+
+        root.child("login").setValue(true);
+
     }
 
-    private void requestLogin() {
+    private void requestLogin(String user, String pass) {
 
         dialog.show();
 
@@ -107,13 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString(PASSWORD, String.valueOf(pedagang.getPassword()));
                     editor.apply();
 
-                    DatabaseReference root = FirebaseDatabase.getInstance().getReference()
-                            .child("pmk" + pedagang.getIdPemilik()).child("status"
-                            ).child("pdg" + pedagang.getIdPedagang()
-                            );
-
-                    root.child("login").setValue(true);
-
+                    writeStatusToFirebase(pedagang.getIdPemilik(), pedagang.getIdPedagang());
 
                     Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
                     startActivity(intent);
@@ -133,4 +133,21 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.btnLogin) {
+
+            Log.v("cik","cukk");
+
+            String user = username.getText().toString();
+            String pass = password.getText().toString();
+
+            if (user.equals("") && pass.equals("")) {
+                Toast.makeText(LoginActivity.this, "Username dan Password Harus Diisi", Toast.LENGTH_SHORT).show();
+            } else {
+                requestLogin(user, pass);
+            }
+
+        }
+    }
 }

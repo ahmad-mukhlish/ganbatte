@@ -1,4 +1,4 @@
-package com.programmerbaper.skripsi.view;
+package com.programmerbaper.skripsi.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,11 @@ public class SplashScreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
 
         getSupportActionBar().hide();
+        showSplashScreen();
+
+    }
+
+    private void showSplashScreen() {
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -25,6 +30,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 finish();
             }
         }, 3000);
+
 
     }
 }

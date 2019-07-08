@@ -28,11 +28,10 @@ import com.programmerbaper.skripsi.model.api.Lokasi;
 
 import androidx.core.content.ContextCompat;
 
+import static com.programmerbaper.skripsi.activities.DagangActivity.berkeliling;
 import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.config.Config.ID_USER;
 import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
-import static com.programmerbaper.skripsi.view.DagangActivity.berkeliling;
-import static java.lang.Integer.parseInt;
 
 public class TrackingService extends Service {
     private static final String TAG = TrackingService.class.getSimpleName();
@@ -110,7 +109,6 @@ public class TrackingService extends Service {
 
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
-        final String path = getString(R.string.firebase_path);
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -131,7 +129,7 @@ public class TrackingService extends Service {
                     String idPemilik = pref.getString(ID_PEMILIK, "");
 
 
-                    DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                    DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("pemilik")
                             .child("pmk"+idPemilik).child("lokasi").child("pdg"+id);
 
 

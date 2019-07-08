@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.model.cuaca.List;
 import com.squareup.picasso.Picasso;
@@ -55,7 +56,7 @@ public class CuacaAdapter extends RecyclerView.Adapter<CuacaAdapter.CuacaViewHol
 
         final List cuacaNow = mList.get(i);
 
-        Picasso.get()
+        Glide.with(mContext)
                 .load("http://openweathermap.org/img/w/" + cuacaNow.getWeather().get(0).getIcon() + ".png")
                 .into(cuacaViewHolder.icon);
 
