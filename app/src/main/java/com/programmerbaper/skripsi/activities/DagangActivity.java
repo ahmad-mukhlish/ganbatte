@@ -11,12 +11,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,10 +33,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.services.TrackingService;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.config.Config.ID_USER;
@@ -50,6 +49,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
     private ProgressDialog progressDialog = null;
     private Button mKeliling;
     public static boolean berkeliling;
+    public static boolean permission = false;
     private double latitude;
     private double longitude;
 
@@ -62,7 +62,11 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         getSupportActionBar().setTitle("Dagang Keliling App");
 
         initProgressDialog();
-        initPermission();
+
+        if (!permission) {
+            initPermission();
+        }
+
         bind();
 
     }
@@ -96,34 +100,41 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
     }
 
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(this, "Anda sudah di menu utama", Toast.LENGTH_SHORT).show();
+    }
+
     private void logout() {
 
-        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        String id = pref.getString(ID_USER, "");
-        String idPemilik = pref.getString(ID_PEMILIK, "");
+        if (!berkeliling) {
+            //write logout to firebase
+            SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+            String id = pref.getString(ID_USER, "");
+            String idPemilik = pref.getString(ID_PEMILIK, "");
 
 
-        DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("pemilik")
-                .child("pmk" + idPemilik).child("status").child("pdg" + id);
+            DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("pemilik")
+                    .child("pmk" + idPemilik).child("status").child("pdg" + id);
 
-        root.child("login").setValue(false);
+            root.child("login").setValue(false);
 
-        //TODO turn off tracker
-
-
-        //flush shared preferences
-        SharedPreferences.Editor editor = pref.edit();
+            //flush shared preferences
+            SharedPreferences.Editor editor = pref.edit();
 
 
-        editor.putString(ID_USER, "");
-        editor.putString(ID_PEMILIK, "");
-        editor.putString(USERNAME, "");
-        editor.putString(PASSWORD, "");
+            editor.putString(ID_USER, "");
+            editor.putString(ID_PEMILIK, "");
+            editor.putString(USERNAME, "");
+            editor.putString(PASSWORD, "");
 
-        editor.commit();
+            editor.commit();
 
-        Intent intent = new Intent(DagangActivity.this, LoginActivity.class);
-        startActivity(intent);
+            Intent intent = new Intent(DagangActivity.this, LoginActivity.class);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Harap Berhenti Keliling Terlebih Dahulu", Toast.LENGTH_SHORT).show();
+        }
 
 
     }
@@ -171,6 +182,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
             }
         } else {
             // Permission has already been granted
+            permission = true;
             Toast.makeText(this, "Izin Lokasi diberikan", Toast.LENGTH_SHORT).show();
         }
 
@@ -243,11 +255,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
     @Override
     public void onClick(View view) {
-        Log.v("cik",view.getId()+"") ;
-        Log.v("cikk",R.id.keliling+"") ;
         if (view.getId() == R.id.keliling) {
-
-            Log.v("cik","cuk") ;
             if (!berkeliling) {
                 mulaiKeliling();
             } else {
@@ -260,26 +268,9 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
         berkeliling = true;
 
-        //Check whether GPS tracking is enabled//
+        startService(new Intent(DagangActivity.this, TrackingService.class));
 
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            finish();
-        }
-
-        //Check whether this app has access to the location permission//
-
-        int permission = ContextCompat.checkSelfPermission(DagangActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        //If the location permission has been granted, then start the TrackerService//
-
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            startService(new Intent(DagangActivity.this, TrackingService.class));
-        } else {
-            initPermission();
-        }
-
+        //write to firebase set the keliling value to true
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String id = pref.getString(ID_USER, "");
         String idPemilik = pref.getString(ID_PEMILIK, "");
@@ -298,25 +289,9 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
     private void berhentiKeliling() {
         berkeliling = false;
-        //Check whether GPS tracking is enabled//
 
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            finish();
-        }
-
-        //Check whether this app has access to the location permission//
-
-        int permission = ContextCompat.checkSelfPermission(DagangActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        //If the location permission has been granted, then start the TrackerService//
-
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            stopService(new Intent(DagangActivity.this, TrackingService.class));
-        } else {
-            initPermission();
-        }
+        //write to firebase set the keliling value to false
+        stopService(new Intent(DagangActivity.this, TrackingService.class));
 
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String id = pref.getString(ID_USER, "");
@@ -327,7 +302,6 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
                 .child("pmk" + idPemilik).child("status").child("pdg" + id);
 
         root.child("keliling").setValue(false);
-
 
 
         mKeliling.setText("Mulai Keliling");

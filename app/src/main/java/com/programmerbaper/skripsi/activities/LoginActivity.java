@@ -55,6 +55,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.btnLogin) {
+
+            Log.v("cik","cukk");
+
+            String user = username.getText().toString();
+            String pass = password.getText().toString();
+
+            if (user.equals("") && pass.equals("")) {
+                Toast.makeText(LoginActivity.this, "Username dan Password Harus Diisi", Toast.LENGTH_SHORT).show();
+            } else {
+                requestLogin(user, pass);
+            }
+
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
+
     private void bind() {
 
         username = findViewById(R.id.username);
@@ -133,21 +156,5 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.btnLogin) {
 
-            Log.v("cik","cukk");
-
-            String user = username.getText().toString();
-            String pass = password.getText().toString();
-
-            if (user.equals("") && pass.equals("")) {
-                Toast.makeText(LoginActivity.this, "Username dan Password Harus Diisi", Toast.LENGTH_SHORT).show();
-            } else {
-                requestLogin(user, pass);
-            }
-
-        }
-    }
 }

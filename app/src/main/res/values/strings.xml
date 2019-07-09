@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Skripsi</string>
+    <string name="app_name">Pedagang</string>
     <string name="title_activity_dagang">Map</string>
     <string name="loading">Loading</string>
     <string name="processing">Sedang Memproses..</string>
