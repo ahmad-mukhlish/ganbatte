@@ -23,15 +23,14 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.model.api.Lokasi;
 
 import androidx.core.content.ContextCompat;
 
 import static com.programmerbaper.skripsi.activities.DagangActivity.berkeliling;
-import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
-import static com.programmerbaper.skripsi.config.Config.ID_USER;
-import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
+import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
+import static com.programmerbaper.skripsi.misc.Config.ID_USER;
+import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;
 
 public class TrackingService extends Service {
     private static final String TAG = TrackingService.class.getSimpleName();

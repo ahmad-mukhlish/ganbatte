@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
@@ -20,16 +22,17 @@ import com.programmerbaper.skripsi.model.api.Pedagang;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
 
-import androidx.appcompat.app.AppCompatActivity;
+import java.io.IOException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
-import static com.programmerbaper.skripsi.config.Config.ID_USER;
-import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
-import static com.programmerbaper.skripsi.config.Config.PASSWORD;
-import static com.programmerbaper.skripsi.config.Config.USERNAME;
+import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
+import static com.programmerbaper.skripsi.misc.Config.ID_USER;
+import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;
+import static com.programmerbaper.skripsi.misc.Config.PASSWORD;
+import static com.programmerbaper.skripsi.misc.Config.USERNAME;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -59,13 +62,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         if (view.getId() == R.id.btnLogin) {
 
-            Log.v("cik","cukk");
-
             String user = username.getText().toString();
             String pass = password.getText().toString();
 
             if (user.equals("") && pass.equals("")) {
-                Toast.makeText(LoginActivity.this, "Username dan Password Harus Diisi", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.tst_empty_login), Toast.LENGTH_SHORT).show();
             } else {
                 requestLogin(user, pass);
             }
@@ -90,8 +91,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void initProgressDialog() {
         dialog = new ProgressDialog(this);
-        dialog.setTitle("Login");
-        dialog.setMessage("Sedang Memeriksa..");
+        dialog.setTitle(R.string.lbl_progress_login);
+        dialog.setMessage(getString(R.string.lbl_message_progress_login));
         dialog.setCancelable(false);
     }
 
@@ -127,31 +128,43 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onResponse(Call<Pedagang> call, Response<Pedagang> response) {
                 Pedagang pedagang = response.body();
 
-                if (!pedagang.getNama().equals("Password Salah")) {
-                    dialog.dismiss();
-                    editor = pref.edit();
-                    editor.putString(ID_USER, String.valueOf(pedagang.getIdPedagang()));
-                    editor.putString(ID_PEMILIK, String.valueOf(pedagang.getIdPemilik()));
-                    editor.putString(USERNAME, String.valueOf(pedagang.getUsername()));
-                    editor.putString(PASSWORD, String.valueOf(pedagang.getPassword()));
-                    editor.apply();
+                if (response.body() != null) {
+                    if (!pedagang.getNama().equals("Password Salah")) {
+                        dialog.dismiss();
+                        editor = pref.edit();
+                        editor.putString(ID_USER, String.valueOf(pedagang.getIdPedagang()));
+                        editor.putString(ID_PEMILIK, String.valueOf(pedagang.getIdPemilik()));
+                        editor.putString(USERNAME, String.valueOf(pedagang.getUsername()));
+                        editor.putString(PASSWORD, String.valueOf(pedagang.getPassword()));
+                        editor.apply();
 
-                    writeStatusToFirebase(pedagang.getIdPemilik(), pedagang.getIdPedagang());
+                        writeStatusToFirebase(pedagang.getIdPemilik(), pedagang.getIdPedagang());
 
-                    Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
-                    startActivity(intent);
-                    finish();
+                        Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, getString(R.string.tst_wrong_pass), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    dialog.dismiss();
-                    Toast.makeText(LoginActivity.this, "Username atau Password Salah", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Terjadi Error Pada Server", Toast.LENGTH_SHORT).show();
+
+                    try {
+                        Log.v("cik", response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+
+                dialog.dismiss();
+
             }
 
             @Override
             public void onFailure(Call<Pedagang> call, Throwable t) {
                 dialog.dismiss();
-                t.printStackTrace();
-                Toast.makeText(LoginActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
+                Log.v("cik", t.getMessage());
+                Toast.makeText(LoginActivity.this, getString(R.string.tst_login_fail), Toast.LENGTH_SHORT).show();
             }
         });
     }

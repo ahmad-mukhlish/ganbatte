@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".activities.CuacaActivity">
+    android:orientation="vertical"
+    tools:context=".activities.ListPesananActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCuaca"
+        android:id="@+id/rvPesanan"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="8dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 
-</RelativeLayout>
+</LinearLayout>
+

@@ -9,6 +9,11 @@
         android:title="Cuaca"
         app:showAsAction="always|collapseActionView" />
 
+    <item
+        android:id="@+id/pesanan"
+        android:icon="@drawable/ic_list_pesanan"
+        android:title="Pesanan"
+        app:showAsAction="always|collapseActionView" />
 
     <item
         android:id="@+id/logout"

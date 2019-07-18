@@ -8,15 +8,18 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_pedagang"
-        android:label="@string/app_name"
+        android:label="@string/lbl_app_name"
         android:roundIcon="@mipmap/ic_pedagang"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".activities.CuacaActivity"
-            android:parentActivityName=".activities.DagangActivity"/>
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".activities.DetailTransaksiActivity"></activity>
+        <activity android:name=".activities.ListPesananActivity" />
+        <activity
+            android:name=".activities.CuacaActivity"
+            android:parentActivityName=".activities.DagangActivity" />
         <activity android:name=".activities.LoginActivity" />
 
         <meta-data
@@ -35,9 +38,9 @@
         </activity>
 
         <service
-            android:name="com.programmerbaper.skripsi.services.TrackingService"
+            android:name=".services.TrackingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
     </application>
 
 </manifest>

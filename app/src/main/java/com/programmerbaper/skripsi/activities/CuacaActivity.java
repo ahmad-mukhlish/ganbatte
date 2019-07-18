@@ -23,7 +23,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.programmerbaper.skripsi.config.Config.API_KEY_OWM;
+import static com.programmerbaper.skripsi.misc.Config.API_KEY_OWM;
 
 public class CuacaActivity extends AppCompatActivity {
 

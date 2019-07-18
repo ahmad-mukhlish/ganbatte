@@ -34,20 +34,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.services.TrackingService;
 
-import static com.programmerbaper.skripsi.config.Config.ID_PEMILIK;
-import static com.programmerbaper.skripsi.config.Config.ID_USER;
-import static com.programmerbaper.skripsi.config.Config.MY_PREFERENCES;
-import static com.programmerbaper.skripsi.config.Config.PASSWORD;
-import static com.programmerbaper.skripsi.config.Config.USERNAME;
+import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
+import static com.programmerbaper.skripsi.misc.Config.ID_USER;
+import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;
+import static com.programmerbaper.skripsi.misc.Config.PASSWORD;
+import static com.programmerbaper.skripsi.misc.Config.USERNAME;
 
 public class DagangActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
 
-    private GoogleMap mMap;
-    private LocationManager mLocationManager;
-    private Marker mMarker;
-    private LocationListener mLocationListener;
+    private GoogleMap googleMap;
+    private Marker marker;
     private ProgressDialog progressDialog = null;
-    private Button mKeliling;
+    private Button keliling;
     public static boolean berkeliling;
     public static boolean permission = false;
     private double latitude;
@@ -59,7 +57,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dagang);
 
-        getSupportActionBar().setTitle("Dagang Keliling App");
+        getSupportActionBar().setTitle(getString(R.string.lbl_title_dagang));
 
         initProgressDialog();
 
@@ -68,6 +66,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         }
 
         bind();
+
 
     }
 
@@ -88,6 +87,11 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
             case R.id.logout: {
                 logout();
             }
+
+            case R.id.pesanan: {
+                intentToListPesanan();
+            }
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -102,7 +106,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
     @Override
     public void onBackPressed() {
-        Toast.makeText(this, "Anda sudah di menu utama", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.tst_main_menu), Toast.LENGTH_SHORT).show();
     }
 
     private void logout() {
@@ -133,7 +137,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
             Intent intent = new Intent(DagangActivity.this, LoginActivity.class);
             startActivity(intent);
         } else {
-            Toast.makeText(this, "Harap Berhenti Keliling Terlebih Dahulu", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.tst_stop_keliling_first), Toast.LENGTH_SHORT).show();
         }
 
 
@@ -141,14 +145,14 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
     private void showMap(GoogleMap googleMap) {
 
-        mMap = googleMap;
-        mMap.setPadding(10, 180, 10, 10);
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        this.googleMap = googleMap;
+        this.googleMap.setPadding(10, 180, 10, 10);
+        this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        mMap.getUiSettings().setCompassEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
-        mMap.getUiSettings().setRotateGesturesEnabled(false);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        this.googleMap.getUiSettings().setCompassEnabled(true);
+        this.googleMap.getUiSettings().setZoomGesturesEnabled(true);
+        this.googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        this.googleMap.getUiSettings().setZoomControlsEnabled(true);
 
         progressDialog.show();
         initMarkerToPhoneLocation();
@@ -191,8 +195,8 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
     @SuppressLint("MissingPermission")
     private void initMarkerToPhoneLocation() {
 
-        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        mLocationListener = new LocationListener() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
 
@@ -201,16 +205,16 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
                 longitude = location.getLongitude();
 
                 LatLng latLng = new LatLng(latitude, longitude);
-                if (mMarker != null) {
-                    mMarker.remove();
-                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Posisi Dagang Anda").
+                if (marker != null) {
+                    marker.remove();
+                    marker = googleMap.addMarker(new MarkerOptions().position(latLng).title("Posisi Dagang Anda").
                             icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gerobag)));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
 
                 } else {
-                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Posisi Dagang Anda").
+                    marker = googleMap.addMarker(new MarkerOptions().position(latLng).title("Posisi Dagang Anda").
                             icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_gerobag)));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
                 }
 
                 progressDialog.dismiss();
@@ -235,8 +239,8 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         };
 
 
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, mLocationListener);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, mLocationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, locationListener);
 
 
     }
@@ -246,8 +250,8 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        mKeliling = findViewById(R.id.keliling);
-        mKeliling.setOnClickListener(this);
+        keliling = findViewById(R.id.keliling);
+        keliling.setOnClickListener(this);
         berkeliling = false;
 
     }
@@ -282,8 +286,8 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         root.child("keliling").setValue(true);
 
 
-        mKeliling.setText("Stop Keliling");
-        mKeliling.setBackground(getResources().getDrawable(R.drawable.round_red_button));
+        keliling.setText("Stop Keliling");
+        keliling.setBackground(getResources().getDrawable(R.drawable.round_red_button));
 
     }
 
@@ -304,14 +308,19 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         root.child("keliling").setValue(false);
 
 
-        mKeliling.setText("Mulai Keliling");
-        mKeliling.setBackground(getResources().getDrawable(R.drawable.round_button));
+        keliling.setText("Mulai Keliling");
+        keliling.setBackground(getResources().getDrawable(R.drawable.round_button));
     }
 
     private void intentToCuaca() {
         Intent intent = new Intent(this, CuacaActivity.class);
         intent.putExtra("lat", latitude);
         intent.putExtra("lon", longitude);
+        startActivity(intent);
+    }
+
+    private void intentToListPesanan() {
+        Intent intent = new Intent(this, ListPesananActivity.class);
         startActivity(intent);
     }
 }

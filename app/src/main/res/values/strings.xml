@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pedagang</string>
+    <string name="lbl_app_name">Pedagang</string>
     <string name="title_activity_dagang">Map</string>
     <string name="loading">Loading</string>
     <string name="processing">Sedang Memproses..</string>
@@ -9,5 +9,13 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="btn_sign_in">Sign in</string>
-    <string name="firebase_path">location</string>
+    <string name="lbl_account_login">Account Login</string>
+    <string name="lbl_progress_login">Login</string>
+    <string name="lbl_message_progress_login">Sedang Memeriksa..</string>
+    <string name="tst_wrong_pass">Username atau Password Salah</string>
+    <string name="tst_login_fail">Terjadi Kesalahan Tidak Terduga</string>
+    <string name="tst_empty_login">Username dan Password Harus Diisi</string>
+    <string name="lbl_title_dagang">Berkeliling</string>
+    <string name="tst_main_menu">Anda sudah di menu utama</string>
+    <string name="tst_stop_keliling_first">Harap Berhenti Keliling Terlebih Dahulu</string>
 </resources>

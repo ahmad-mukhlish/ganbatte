@@ -14,7 +14,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="40dp"
-        android:text="Account Login"
+        android:text="@string/lbl_account_login"
         android:textColor="#FFFFFF"
         android:textSize="30sp"
         android:visibility="invisible" />

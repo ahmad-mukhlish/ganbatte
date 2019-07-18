@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.model.cuaca.List;
-import com.squareup.picasso.Picasso;
 
 
 public class CuacaAdapter extends RecyclerView.Adapter<CuacaAdapter.CuacaViewHolder> {
@@ -35,7 +34,7 @@ public class CuacaAdapter extends RecyclerView.Adapter<CuacaAdapter.CuacaViewHol
     @Override
     public CuacaAdapter.CuacaViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.cuaca_card, null, false);
+        View view = inflater.inflate(R.layout.card_cuaca, null, false);
         CuacaAdapter.CuacaViewHolder adapter = new CuacaAdapter.CuacaViewHolder(view);
 
         return adapter;

@@ -3,7 +3,7 @@ package com.programmerbaper.skripsi.retrofit.owm;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.programmerbaper.skripsi.config.Config.BASE_URL_OWM;
+import static com.programmerbaper.skripsi.misc.Config.BASE_URL_OWM;
 
 public class OWMClient {
 

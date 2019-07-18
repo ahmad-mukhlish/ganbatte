@@ -3,7 +3,7 @@ package com.programmerbaper.skripsi.retrofit.api;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.programmerbaper.skripsi.config.Config.BASE_URL_API;
+import static com.programmerbaper.skripsi.misc.Config.BASE_URL_API;
 
 public class APIClient {
 
