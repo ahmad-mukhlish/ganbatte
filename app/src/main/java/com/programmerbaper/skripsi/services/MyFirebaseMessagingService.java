@@ -25,10 +25,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         createNotificationChannel();
-        showNotification(remoteMessage.getNotification().getBody());
+        showNotification(remoteMessage);
     }
 
-    private void showNotification(String message) {
+    private void showNotification(RemoteMessage remoteMessage) {
 
         Bitmap icon = BitmapFactory.decodeResource(getApplicationContext().getResources(),
                 R.drawable.ic_pedagang);
@@ -36,8 +36,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "123")
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setLargeIcon(icon)
-                .setContentTitle("coba")
-                .setContentText(message)
+                .setContentText(remoteMessage.getNotification().getBody())
+                .setContentTitle(remoteMessage.getNotification().getTitle())
                 .setDefaults(Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS| Notification.DEFAULT_VIBRATE)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 

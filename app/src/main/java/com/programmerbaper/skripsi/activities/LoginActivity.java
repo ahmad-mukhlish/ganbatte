@@ -60,6 +60,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         bind();
         initProgressDialog();
         initPreferences();
+        Log.v("cik","coba");
 
 
     }
@@ -182,6 +183,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         //Check wether token exist or not at shared pref and dbase
         pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        Log.v("cik",pref.getString(FCM_TOKEN, ""));
         if (pref.getString(FCM_TOKEN, "").isEmpty()) {
 
             Log.v("cik", "empty mang");
@@ -195,6 +197,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     if(response.body().isEmpty()) {
 
+                        Log.v("cik",response.body());
                         getTokenFromFcm();
 
                     } else {

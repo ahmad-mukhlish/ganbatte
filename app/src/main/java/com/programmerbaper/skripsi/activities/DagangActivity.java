@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,7 +33,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.retrofit.api.APIClient;
+import com.programmerbaper.skripsi.retrofit.api.APIInterface;
 import com.programmerbaper.skripsi.services.TrackingService;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.programmerbaper.skripsi.misc.Config.FCM_TOKEN;
 import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
@@ -132,6 +139,9 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
             editor.putString(ID_PEMILIK, "");
             editor.putString(USERNAME, "");
             editor.putString(PASSWORD, "");
+            editor.putString(FCM_TOKEN, "");
+
+            renullTokenPost();
 
             editor.commit();
 
@@ -323,5 +333,30 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
     private void intentToListPesanan() {
         Intent intent = new Intent(this, ListPesananActivity.class);
         startActivity(intent);
+    }
+
+    private void renullTokenPost(){
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String id = pref.getString(ID_USER, "");
+
+        APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+        Call<String> call =  apiInterface.renullTokenPost(Integer.parseInt(id));
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.v("cik",response.body());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+
+
+
+
     }
 }

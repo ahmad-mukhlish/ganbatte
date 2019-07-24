@@ -35,6 +35,8 @@ public interface APIInterface {
     Call<String> saveTokenByIDPost(@Field("id_pedagang") int idPedagang,
                                    @Field("fcm_token") String fcmToken) ;
 
-
+    @FormUrlEncoded
+    @POST("renullTokenPost")
+    Call<String> renullTokenPost(@Field("id_pedagang") int idPedagang) ;
 
 }
