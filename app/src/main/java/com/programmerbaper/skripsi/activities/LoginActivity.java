@@ -15,8 +15,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.model.api.Pedagang;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
@@ -28,6 +32,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.programmerbaper.skripsi.misc.Config.FCM_TOKEN;
 import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.misc.Config.ID_USER;
 import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;
@@ -55,6 +60,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         bind();
         initProgressDialog();
         initPreferences();
+
 
     }
 
@@ -138,6 +144,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         editor.putString(PASSWORD, String.valueOf(pedagang.getPassword()));
                         editor.apply();
 
+                        tokenize();
+
                         writeStatusToFirebase(pedagang.getIdPemilik(), pedagang.getIdPedagang());
 
                         Intent intent = new Intent(LoginActivity.this, DagangActivity.class);
@@ -170,4 +178,81 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
+    private void tokenize() {
+
+        //Check wether token exist or not at shared pref and dbase
+        pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        if (pref.getString(FCM_TOKEN, "").isEmpty()) {
+
+            Log.v("cik", "empty mang");
+            Log.v("cik",pref.getString(ID_USER,""));
+
+            APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+            Call<String> call = apiInterface.retrieveTokenByIDGet(Integer.parseInt(pref.getString(ID_USER, "")));
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+
+                    if(response.body().isEmpty()) {
+
+                        getTokenFromFcm();
+
+                    } else {
+                        editor = pref.edit();
+                        editor.putString(FCM_TOKEN, response.body());
+                        editor.apply();
+
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+
+                    dialog.dismiss();
+                    t.printStackTrace();
+                    Log.v("cik", t.getMessage());
+                    Toast.makeText(LoginActivity.this, "Terjadi Kesalahan Tidak Terduga Pada FCM", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+
+
+        }
+
+        FirebaseMessaging.getInstance().subscribeToTopic("test") ;
+    }
+
+    private void getTokenFromFcm() {
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                String token = instanceIdResult.getToken();
+
+                Log.v("cik",token);
+
+                editor = pref.edit();
+                editor.putString(FCM_TOKEN, token);
+                editor.apply();
+
+                APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+                Call<String> call = apiInterface.saveTokenByIDPost(Integer.parseInt(pref.getString(ID_USER, "")), token);
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        Log.v("cik", response.body());
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.v("cik", t.getMessage());
+                    }
+                });
+
+
+            }
+        });
+    }
 }

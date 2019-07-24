@@ -27,5 +27,14 @@ public interface APIInterface {
     @GET("detailTransaksiGet/{id_transaksi}")
     Call<List<Makanan>> detailTransaksiGet(@Path("id_transaksi") int idTransaksi);
 
+    @GET("retrieveTokenByIDGet/{id_pedagang}")
+    Call<String> retrieveTokenByIDGet(@Path("id_pedagang") int idPedagang);
+
+    @FormUrlEncoded
+    @POST("saveTokenByIDPost")
+    Call<String> saveTokenByIDPost(@Field("id_pedagang") int idPedagang,
+                                   @Field("fcm_token") String fcmToken) ;
+
+
 
 }

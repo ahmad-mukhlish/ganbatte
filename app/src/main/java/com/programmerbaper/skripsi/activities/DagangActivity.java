@@ -34,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.services.TrackingService;
 
+import static com.programmerbaper.skripsi.misc.Config.FCM_TOKEN;
 import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.misc.Config.ID_USER;
 import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;

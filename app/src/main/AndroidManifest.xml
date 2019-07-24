@@ -15,6 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_name" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorPrimaryDark" />
+
+
         <activity android:name=".activities.DetailTransaksiActivity"></activity>
         <activity android:name=".activities.ListPesananActivity" />
         <activity
@@ -41,6 +50,15 @@
             android:name=".services.TrackingService"
             android:enabled="true"
             android:exported="true" />
+
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
