@@ -6,6 +6,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -21,9 +22,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.adapter.DetailAdapter;
 import com.programmerbaper.skripsi.misc.Helper;
+import com.programmerbaper.skripsi.misc.directionhelpers.FetchURL;
+import com.programmerbaper.skripsi.misc.directionhelpers.TaskLoadedCallback;
+import com.programmerbaper.skripsi.model.api.DetailTransaksi;
 import com.programmerbaper.skripsi.model.api.Makanan;
 import com.programmerbaper.skripsi.model.api.Transaksi;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
@@ -38,7 +44,7 @@ import retrofit2.Response;
 
 import static com.programmerbaper.skripsi.misc.Config.DATA_TRANSAKSI;
 
-public class DetailTransaksiActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class DetailTransaksiActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
     private Transaksi transaksi ;
     private ProgressDialog dialog;
@@ -50,6 +56,9 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
     private Marker marker;
     private double latitude;
     private double longitude;
+    private LatLng posPembeli;
+    private Polyline currentPolyline;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +73,8 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
         Bundle bundle = getIntent().getExtras();
         transaksi = bundle.getParcelable(DATA_TRANSAKSI);
+
+
 
 
 
@@ -136,9 +147,8 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         dialog.show();
         initMarkerToPhoneLocation();
 
-        LatLng posPembeli = new LatLng(transaksi.getLatitude(), transaksi.getLongitude());
-        googleMap.addMarker(new MarkerOptions().position(posPembeli).title(transaksi.getAlamat()).
-                icon(BitmapDescriptorFactory.fromResource(R.drawable.mark9)));
+        posPembeli = new LatLng(transaksi.getLatitude(), transaksi.getLongitude());
+        googleMap.addMarker(new MarkerOptions().position(posPembeli).title(transaksi.getAlamat()));
     }
 
     @SuppressLint("MissingPermission")
@@ -166,6 +176,10 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
                 }
 
+
+                new FetchURL(DetailTransaksiActivity.this)
+                        .execute(getRouteUrl(posPembeli,latLng,"walking"),"walking") ;
+
                 dialog.dismiss();
 
 
@@ -188,10 +202,34 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         };
 
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
 
 
+    }
+
+    private String getRouteUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            currentPolyline.remove();
+        currentPolyline = googleMap.addPolyline((PolylineOptions) values[0]);
+        currentPolyline.setColor(R.color.colorPrimaryDark);
     }
 
 }
