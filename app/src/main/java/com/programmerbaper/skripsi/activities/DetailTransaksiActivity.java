@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.adapter.DetailAdapter;
+import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.misc.Helper;
 import com.programmerbaper.skripsi.misc.directionhelpers.FetchURL;
 import com.programmerbaper.skripsi.misc.directionhelpers.TaskLoadedCallback;
@@ -75,15 +76,13 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         transaksi = bundle.getParcelable(DATA_TRANSAKSI);
 
 
-
-
-
         Button done = findViewById(R.id.done);
         done.setText("Transaksi Selesai ("+ Helper.formatter(transaksi.getHarga()+"")+")");
 
 //        done.setOnClickListener(new doneListener(this));
 
-        setTitle("Detail Transaksi "+transaksi.getNama());
+        String[] splited = transaksi.getNama().split("\\s+");
+        setTitle("Detail Transaksi "+splited[0]);
 
         //set list of pesanan to be scrollable
         ((SlidingUpPanelLayout)findViewById(R.id.sliding_layout))
@@ -230,6 +229,18 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
             currentPolyline.remove();
         currentPolyline = googleMap.addPolyline((PolylineOptions) values[0]);
         currentPolyline.setColor(R.color.colorPrimaryDark);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CurrentActivityContext.setActualContext(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CurrentActivityContext.setActualContext(null);
     }
 
 }

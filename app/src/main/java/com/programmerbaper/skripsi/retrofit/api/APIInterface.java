@@ -39,4 +39,8 @@ public interface APIInterface {
     @POST("renullTokenPost")
     Call<String> renullTokenPost(@Field("id_pedagang") int idPedagang) ;
 
+    @GET("transaksiByIDGet/{id_transaksi}")
+    Call<Transaksi> transaksiByIDGet(@Path("id_transaksi") int idTransaksi);
+
+
 }

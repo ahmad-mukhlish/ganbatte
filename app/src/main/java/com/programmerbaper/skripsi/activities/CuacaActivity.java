@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.adapter.CuacaAdapter;
+import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.model.cuaca.Cuaca;
 import com.programmerbaper.skripsi.retrofit.owm.OWMClient;
 import com.programmerbaper.skripsi.retrofit.owm.OWMInterface;
@@ -107,6 +108,18 @@ public class CuacaActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CurrentActivityContext.setActualContext(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CurrentActivityContext.setActualContext(null);
     }
 
 }

@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.adapter.PesananAdapter;
+import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.model.api.Transaksi;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
@@ -81,5 +82,17 @@ public class ListPesananActivity extends AppCompatActivity {
                 Toast.makeText(ListPesananActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CurrentActivityContext.setActualContext(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CurrentActivityContext.setActualContext(null);
     }
 }

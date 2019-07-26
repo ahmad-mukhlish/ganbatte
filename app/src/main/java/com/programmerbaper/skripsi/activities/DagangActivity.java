@@ -33,6 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
 import com.programmerbaper.skripsi.services.TrackingService;
@@ -358,5 +359,17 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CurrentActivityContext.setActualContext(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CurrentActivityContext.setActualContext(null);
     }
 }
