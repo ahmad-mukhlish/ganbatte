@@ -95,33 +95,19 @@ public class TrackingService extends Service {
         });
     }
 
-    //Initiate the request to track the device's location//
 
     private void requestLocationUpdates() {
         LocationRequest request = new LocationRequest();
-
-        //Specify how often your app should request the device’s location//
-
         request.setInterval(10000);
-
-        //Get the most accurate location data available//
-
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
-        //If the app currently has access to the location permission...//
-
         if (permission == PackageManager.PERMISSION_GRANTED) {
-
-            //...then request location updates//
-
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-
-                    //Get a reference to the database, so your app can perform read and write operations//
 
                     SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
                     String id = pref.getString(ID_USER, "");
@@ -129,20 +115,18 @@ public class TrackingService extends Service {
 
 
                     DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("pemilik")
-                            .child("pmk"+idPemilik).child("lokasi").child("pdg"+id);
+                            .child("pmk" + idPemilik).child("lokasi").child("pdg" + id);
 
 
                     if (!id.isEmpty()) {
-                    Location location = locationResult.getLastLocation();
-                    Lokasi lokasi = new Lokasi(location.getLatitude(), location.getLongitude(), Integer.parseInt(id), berkeliling);
+                        Location location = locationResult.getLastLocation();
+                        Lokasi lokasi = new Lokasi(location.getLatitude(), location.getLongitude(), Integer.parseInt(id), berkeliling);
 
-
-                    if (location != null) {
-
-                        //Save the location data to the database//
-
-                        root.setValue(lokasi);
-                    }
+                        if (location != null && berkeliling) {
+                            root.setValue(lokasi);
+                        } else if (location != null && !berkeliling) {
+                            root.child("moving").setValue(false);
+                        }
 
 
                     }
