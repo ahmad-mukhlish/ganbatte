@@ -8,14 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,10 +28,14 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.activities.DetailTransaksiActivity;
 import com.programmerbaper.skripsi.misc.CurrentActivityContext;
+import com.programmerbaper.skripsi.misc.Helper;
 import com.programmerbaper.skripsi.misc.NotificationID;
 import com.programmerbaper.skripsi.model.api.Transaksi;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
+
+import java.util.Arrays;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -53,8 +55,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         createNotificationChannel();
         getTransaksiByID(remoteMessage);
-
-
 
 
     }
@@ -123,7 +123,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Handler h = new Handler(Looper.getMainLooper());
                     h.post(new Runnable() {
                         public void run() {
-                            showDialog(CurrentActivityContext.getActualContext(),transaksi);
+                            showDialog(CurrentActivityContext.getActualContext(), transaksi);
                         }
                     });
                 }
@@ -138,22 +138,38 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
-    private void showDialog(Context context, Transaksi transaksi) {
+    private void showDialog(final Context context, final Transaksi transaksi) {
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(CurrentActivityContext.getActualContext());
-        View rootDialog = LayoutInflater.from(CurrentActivityContext.getActualContext()).inflate(R.layout.dialogue_notif_pesanan, null);
+        View rootDialog = LayoutInflater.from(CurrentActivityContext.getActualContext()).inflate(R.layout.dialogue_pesanan, null);
 
         builder.setView(rootDialog);
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        ImageView image = rootDialog.findViewById(R.id.dialogue_image);
+        final ImageView image = rootDialog.findViewById(R.id.dialogue_image);
 
         Glide.with(context)
                 .load(BASE_URL + "storage/pembeli-profiles/" + transaksi.getFoto())
                 .placeholder(R.drawable.pembeli_holder)
                 .into(image);
+
+        TextView nama = rootDialog.findViewById(R.id.dialogue_nama);
+        String[] firstName = transaksi.getNama().split("\\s+");
+        nama.setText("Pesanan Baru " + firstName[0]);
+
+        TextView alamat1 = rootDialog.findViewById(R.id.dialogue_alamat1);
+        alamat1.setText(getAlamat1(transaksi.getAlamat()));
+
+        TextView alamat2 = rootDialog.findViewById(R.id.dialogue_alamat2);
+        alamat2.setText(getAlamat2(transaksi.getAlamat()));
+
+        TextView totalHarga = rootDialog.findViewById(R.id.dialogue_total);
+        totalHarga.setText(Helper.formatter(transaksi.getHarga()+""));
+
+        TextView items = rootDialog.findViewById(R.id.dialogue_items);
+        items.setText("("+transaksi.getItem()+" item)");
 
 
         Button no = rootDialog.findViewById(R.id.no);
@@ -169,13 +185,33 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                //TODO Intent to Detail Here
+
+                Intent intent = new Intent(context, DetailTransaksiActivity.class);
+                intent.putExtra(DATA_TRANSAKSI, transaksi);
+                context.startActivity(intent);
 
 
             }
         });
 
 
+    }
+
+    private String getAlamat1(String alamat) {
+
+
+        List<String> alamatList = Arrays.asList(alamat.split(",[ ]*"));
+
+        return alamatList.get(0);
+
+    }
+
+    private String getAlamat2(String alamat) {
+
+
+        List<String> alamatList = Arrays.asList(alamat.split(",[ ]*"));
+
+        return alamatList.get(1) + ", " + alamatList.get(2);
     }
 
 

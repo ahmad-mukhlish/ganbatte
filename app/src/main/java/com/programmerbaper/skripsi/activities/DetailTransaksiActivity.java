@@ -81,8 +81,8 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
 //        done.setOnClickListener(new doneListener(this));
 
-        String[] splited = transaksi.getNama().split("\\s+");
-        setTitle("Detail Transaksi "+splited[0]);
+        String[] firstName = transaksi.getNama().split("\\s+");
+        setTitle("Detail Transaksi "+firstName[0]);
 
         //set list of pesanan to be scrollable
         ((SlidingUpPanelLayout)findViewById(R.id.sliding_layout))
