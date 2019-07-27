@@ -17,4 +17,6 @@ public class Config {
     public static final String BASE_URL = "http://192.168.1.5/";
     public static final String BASE_URL_API = "http://192.168.1.5/api/pedagang/";
 
+    public static final String BASE_URL_DM = "https://maps.googleapis.com/maps/api/distancematrix/";
+
 }

@@ -28,6 +28,7 @@ import com.programmerbaper.skripsi.model.api.Lokasi;
 import androidx.core.content.ContextCompat;
 
 import static com.programmerbaper.skripsi.activities.DagangActivity.berkeliling;
+import static com.programmerbaper.skripsi.activities.DetailTransaksiActivity.bertransaksi;
 import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.misc.Config.ID_USER;
 import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;
@@ -122,9 +123,9 @@ public class TrackingService extends Service {
                         Location location = locationResult.getLastLocation();
                         Lokasi lokasi = new Lokasi(location.getLatitude(), location.getLongitude(), Integer.parseInt(id), berkeliling);
 
-                        if (location != null && berkeliling) {
+                        if (berkeliling || bertransaksi) {
                             root.setValue(lokasi);
-                        } else if (location != null && !berkeliling) {
+                        } else {
                             root.child("moving").setValue(false);
                         }
 

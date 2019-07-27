@@ -36,17 +36,12 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
 
         try {
             jObject = new JSONObject(jsonData[0]);
-            Log.d("mylog", jsonData[0].toString());
             DataParser parser = new DataParser();
-            Log.d("mylog", parser.toString());
 
             // Starts parsing data
             routes = parser.parse(jObject);
-            Log.d("mylog", "Executing routes");
-            Log.d("mylog", routes.toString());
 
         } catch (Exception e) {
-            Log.d("mylog", e.toString());
             e.printStackTrace();
         }
         return routes;
@@ -80,7 +75,6 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
                 lineOptions.width(20);
                 lineOptions.color(Color.BLUE);
             }
-            Log.d("mylog", "onPostExecute lineoptions decoded");
         }
 
         // Drawing polyline in the Google Map for the i-th route
@@ -89,7 +83,6 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
             taskCallback.onTaskDone(lineOptions);
 
         } else {
-            Log.d("mylog", "without Polylines drawn");
         }
     }
 }

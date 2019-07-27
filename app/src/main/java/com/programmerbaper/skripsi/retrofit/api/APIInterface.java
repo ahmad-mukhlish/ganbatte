@@ -42,5 +42,17 @@ public interface APIInterface {
     @GET("transaksiByIDGet/{id_transaksi}")
     Call<Transaksi> transaksiByIDGet(@Path("id_transaksi") int idTransaksi);
 
+    @FormUrlEncoded
+    @POST("notifDekatPost")
+    Call<String> notifDekatPost(@Field("id_transaksi") int idTransaksi,
+                                @Field("id_pembeli") int idPembeli,
+                                @Field("id_pedagang") int idPedagang);
+
+
+    @FormUrlEncoded
+    @POST("notifSelesaiPost")
+    Call<String> notifSelesaiPost(@Field("id_transaksi") int idTransaksi,
+                                @Field("id_pembeli") int idPembeli,
+                                @Field("id_pedagang") int idPedagang);
 
 }

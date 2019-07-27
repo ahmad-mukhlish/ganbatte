@@ -2,14 +2,23 @@ package com.programmerbaper.skripsi.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +33,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.adapter.DetailAdapter;
 import com.programmerbaper.skripsi.misc.CurrentActivityContext;
@@ -33,8 +44,12 @@ import com.programmerbaper.skripsi.misc.directionhelpers.TaskLoadedCallback;
 import com.programmerbaper.skripsi.model.api.DetailTransaksi;
 import com.programmerbaper.skripsi.model.api.Makanan;
 import com.programmerbaper.skripsi.model.api.Transaksi;
+import com.programmerbaper.skripsi.model.jarak.Jarak;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
+import com.programmerbaper.skripsi.retrofit.dm.DMClient;
+import com.programmerbaper.skripsi.retrofit.dm.DMInterface;
+import com.programmerbaper.skripsi.services.TrackingService;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.List;
@@ -44,10 +59,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.programmerbaper.skripsi.misc.Config.DATA_TRANSAKSI;
+import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
+import static com.programmerbaper.skripsi.misc.Config.ID_USER;
+import static com.programmerbaper.skripsi.misc.Config.MY_PREFERENCES;
 
 public class DetailTransaksiActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
-    private Transaksi transaksi ;
+    private Transaksi transaksi;
     private ProgressDialog dialog;
     private RecyclerView recyclerView;
     private DetailAdapter detailAdapter;
@@ -59,6 +77,8 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
     private double longitude;
     private LatLng posPembeli;
     private Polyline currentPolyline;
+    private boolean dekat = false;
+    public static boolean bertransaksi;
 
 
     @Override
@@ -77,15 +97,23 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
 
         Button done = findViewById(R.id.done);
-        done.setText("Transaksi Selesai ("+ Helper.formatter(transaksi.getHarga()+"")+")");
+        done.setText("Transaksi Selesai (" + Helper.formatter(transaksi.getHarga() + "") + ")");
 
-//        done.setOnClickListener(new doneListener(this));
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateTransaksi();
+                sendNotifSelesai();
+                berhentiBertransaksi();
+
+            }
+        });
 
         String[] firstName = transaksi.getNama().split("\\s+");
-        setTitle("Detail Transaksi "+firstName[0]);
+        setTitle("Detail Transaksi " + firstName[0]);
 
         //set list of pesanan to be scrollable
-        ((SlidingUpPanelLayout)findViewById(R.id.sliding_layout))
+        ((SlidingUpPanelLayout) findViewById(R.id.sliding_layout))
                 .setScrollableView(findViewById(R.id.scrollView));
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -94,6 +122,8 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
         dialog.show();
         getDetail();
+        dialogueKeterangan();
+        mulaiBertransaksi();
     }
 
     private void initProgressDialog() {
@@ -103,12 +133,55 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         dialog.setCancelable(false);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_detail_transaksi, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.note) {
+            dialogueKeterangan();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void dialogueKeterangan() {
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View rootDialog = LayoutInflater.from(this).inflate(R.layout.dialogue_keterangan, null);
+        TextView keterangan = rootDialog.findViewById(R.id.keterangan);
+
+        if (transaksi.getCatatan() == null) {
+            keterangan.setText("Catatan Kosong");
+        } else {
+            keterangan.setText(transaksi.getCatatan());
+        }
+
+        builder.setView(rootDialog);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+        TextView ok = rootDialog.findViewById(R.id.konfirmasi_catatan);
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+
+    }
+
     private void getDetail() {
 
         dialog.show();
         APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
 
-        Call<List<Makanan>> call = apiInterface.detailTransaksiGet(transaksi.getIdTransaksi()) ;
+        Call<List<Makanan>> call = apiInterface.detailTransaksiGet(transaksi.getIdTransaksi());
         call.enqueue(new Callback<List<Makanan>>() {
             @Override
             public void onResponse(Call<List<Makanan>> call, Response<List<Makanan>> response) {
@@ -177,7 +250,12 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
 
                 new FetchURL(DetailTransaksiActivity.this)
-                        .execute(getRouteUrl(posPembeli,latLng,"walking"),"walking") ;
+                        .execute(getRouteUrl(posPembeli, latLng, "walking"), "walking");
+
+                if (!dekat) {
+                    cekJarak(latLng, posPembeli, "walking");
+                }
+
 
                 dialog.dismiss();
 
@@ -241,6 +319,130 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
     protected void onDestroy() {
         super.onDestroy();
         CurrentActivityContext.setActualContext(null);
+    }
+
+
+    private void cekJarak(LatLng origin, LatLng destination, String mode) {
+
+        String origins = origin.latitude + "," + origin.longitude;
+        String destinations = destination.latitude + "," + destination.longitude;
+
+        DMInterface dmInterface = DMClient.getApiClient().create(DMInterface.class);
+        Call<Jarak> call = dmInterface.getJarak(origins, destinations, mode, getString(R.string.google_maps_key));
+        call.enqueue(new Callback<Jarak>() {
+            @Override
+            public void onResponse(Call<Jarak> call, Response<Jarak> response) {
+                Log.v("cikk", response.body().getRows().get(0).getElements().get(0).getDistance().getValue() + "");
+                if (response.body().getRows().get(0).getElements().get(0).getDistance().getValue() < 200) {
+                    dekat = true;
+                    sendNotifDekat();
+                    Toast.makeText(DetailTransaksiActivity.this, "Anda sudah dekat, silahkan swipe up untuk transaksi",
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Jarak> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void sendNotifDekat() {
+        APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String id = pref.getString(ID_USER, "");
+
+        Call<String> call = apiInterface.notifDekatPost(transaksi.getIdTransaksi(),
+                transaksi.getIdPembeli(),Integer.parseInt(id));
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.v("cikan",response.body());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+
+
+    }
+
+    private void updateTransaksi() {
+
+        //TODO UPDATE FIELD STATUS AND CUACA WITH REST API HERE
+
+    }
+
+    private void sendNotifSelesai() {
+
+        APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String id = pref.getString(ID_USER, "");
+
+        Call<String> call = apiInterface.notifSelesaiPost(transaksi.getIdTransaksi(),
+                transaksi.getIdPembeli(),Integer.parseInt(id));
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void mulaiBertransaksi() {
+
+        bertransaksi = true;
+
+        startService(new Intent(DetailTransaksiActivity.this, TrackingService.class));
+
+        //write to firebase set the keliling value to true
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String id = pref.getString(ID_USER, "");
+        String idPemilik = pref.getString(ID_PEMILIK, "");
+
+
+        DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("pemilik")
+                .child("pmk" + idPemilik).child("status").child("pdg" + id);
+
+        root.child("keliling").setValue(true);
+
+
+    }
+
+
+    private void berhentiBertransaksi() {
+        bertransaksi = false;
+
+        //write to firebase set the keliling value to false
+        stopService(new Intent(DetailTransaksiActivity.this, TrackingService.class));
+
+        SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        String id = pref.getString(ID_USER, "");
+        String idPemilik = pref.getString(ID_PEMILIK, "");
+
+
+        DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("pemilik")
+                .child("pmk" + idPemilik).child("status").child("pdg" + id);
+
+        root.child("keliling").setValue(false);
+
+
     }
 
 }
