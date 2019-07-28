@@ -10,9 +10,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +39,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
+import com.programmerbaper.skripsi.adapter.CuacaAdapter;
 import com.programmerbaper.skripsi.adapter.DetailAdapter;
 import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.misc.Helper;
@@ -44,20 +48,31 @@ import com.programmerbaper.skripsi.misc.directionhelpers.TaskLoadedCallback;
 import com.programmerbaper.skripsi.model.api.DetailTransaksi;
 import com.programmerbaper.skripsi.model.api.Makanan;
 import com.programmerbaper.skripsi.model.api.Transaksi;
+import com.programmerbaper.skripsi.model.cuaca.Cuaca;
 import com.programmerbaper.skripsi.model.jarak.Jarak;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
 import com.programmerbaper.skripsi.retrofit.dm.DMClient;
 import com.programmerbaper.skripsi.retrofit.dm.DMInterface;
+import com.programmerbaper.skripsi.retrofit.owm.OWMClient;
+import com.programmerbaper.skripsi.retrofit.owm.OWMInterface;
 import com.programmerbaper.skripsi.services.TrackingService;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.programmerbaper.skripsi.misc.Config.API_KEY_OWM;
 import static com.programmerbaper.skripsi.misc.Config.DATA_TRANSAKSI;
 import static com.programmerbaper.skripsi.misc.Config.ID_PEMILIK;
 import static com.programmerbaper.skripsi.misc.Config.ID_USER;
@@ -78,6 +93,8 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
     private LatLng posPembeli;
     private Polyline currentPolyline;
     private boolean dekat = false;
+    private SlidingUpPanelLayout slidingUpPanelLayout;
+
     public static boolean bertransaksi;
 
 
@@ -102,9 +119,12 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateTransaksi();
+                getCuaca();
                 sendNotifSelesai();
                 berhentiBertransaksi();
+                Intent intent = new Intent(DetailTransaksiActivity.this, DagangActivity.class);
+                startActivity(intent);
+
 
             }
         });
@@ -113,8 +133,16 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         setTitle("Detail Transaksi " + firstName[0]);
 
         //set list of pesanan to be scrollable
-        ((SlidingUpPanelLayout) findViewById(R.id.sliding_layout))
-                .setScrollableView(findViewById(R.id.scrollView));
+        slidingUpPanelLayout = findViewById(R.id.sliding_layout);
+        slidingUpPanelLayout.setScrollableView(findViewById(R.id.scrollView));
+        slidingUpPanelLayout.setEnabled(false);
+        slidingUpPanelLayout.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                Toast.makeText(DetailTransaksiActivity.this,"Dekati Titik Terlebih Dahulu",Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -332,13 +360,20 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         call.enqueue(new Callback<Jarak>() {
             @Override
             public void onResponse(Call<Jarak> call, Response<Jarak> response) {
-                Log.v("cikk", response.body().getRows().get(0).getElements().get(0).getDistance().getValue() + "");
                 if (response.body().getRows().get(0).getElements().get(0).getDistance().getValue() < 200) {
                     dekat = true;
                     sendNotifDekat();
                     Toast.makeText(DetailTransaksiActivity.this, "Anda sudah dekat, silahkan swipe up untuk transaksi",
                             Toast.LENGTH_SHORT)
                             .show();
+                    slidingUpPanelLayout.setEnabled(true);
+                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    slidingUpPanelLayout.setOnDragListener(new View.OnDragListener() {
+                        @Override
+                        public boolean onDrag(View view, DragEvent dragEvent) {
+                            return false;
+                        }
+                    });
                 }
             }
 
@@ -357,12 +392,12 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         String id = pref.getString(ID_USER, "");
 
         Call<String> call = apiInterface.notifDekatPost(transaksi.getIdTransaksi(),
-                transaksi.getIdPembeli(),Integer.parseInt(id));
+                transaksi.getIdPembeli(), Integer.parseInt(id));
 
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                Log.v("cikan",response.body());
+                Log.v("cikan", response.body());
             }
 
             @Override
@@ -374,9 +409,22 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
     }
 
-    private void updateTransaksi() {
+    private void updateTransaksi(String cuaca) {
 
-        //TODO UPDATE FIELD STATUS AND CUACA WITH REST API HERE
+        APIInterface apiInterface = APIClient.getApiClient().create(APIInterface.class);
+        Call<String> call = apiInterface.updateTransaksiPost(transaksi.getIdTransaksi(), cuaca);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+                Log.v("cikk", response.body());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
 
     }
 
@@ -388,12 +436,13 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         String id = pref.getString(ID_USER, "");
 
         Call<String> call = apiInterface.notifSelesaiPost(transaksi.getIdTransaksi(),
-                transaksi.getIdPembeli(),Integer.parseInt(id));
+                transaksi.getIdPembeli(), Integer.parseInt(id));
 
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
 
+                Log.v("cikk", response.body());
             }
 
             @Override
@@ -442,6 +491,56 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
 
         root.child("keliling").setValue(false);
 
+
+    }
+
+    private String getCuaca() {
+
+        dialog.show();
+
+        final String[] responseOWM = new String[1];
+
+        OWMInterface owmInterface = OWMClient.getApiClient().create(OWMInterface.class);
+        Call<String> call = owmInterface.getWeather(latitude, longitude, API_KEY_OWM);
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+                dialog.dismiss();
+
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(response.body());
+                    JSONArray weather = jsonObject.getJSONArray("weather");
+                    JSONObject weatherNow = weather.getJSONObject(0);
+                    String cuaca = weatherNow.getString("main").toLowerCase();
+
+                    if (cuaca.equals("rain") || cuaca.equals("drizzle") || cuaca.equals("thunderstorm")) {
+                        cuaca = "hujan";
+                    } else {
+                        cuaca = "tidak hujan";
+                    }
+
+                    updateTransaksi(cuaca);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+                dialog.dismiss();
+                t.printStackTrace();
+                Toast.makeText(DetailTransaksiActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        return responseOWM[0];
 
     }
 

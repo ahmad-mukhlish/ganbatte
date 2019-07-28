@@ -11,7 +11,10 @@ public interface OWMInterface {
 
 
     @GET("forecast")
-    Call<Cuaca> getCuaca(@Query("lat") float lat, @Query("lon") float lon, @Query("APPID") String APPID);
+    Call<Cuaca> getForecast(@Query("lat") float lat, @Query("lon") float lon, @Query("APPID") String APPID);
+
+    @GET("weather")
+    Call<String> getWeather(@Query("lat") double lat, @Query("lon") double lon, @Query("APPID") String APPID);
 
 }
 

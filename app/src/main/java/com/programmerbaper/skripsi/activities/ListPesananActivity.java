@@ -62,26 +62,31 @@ public class ListPesananActivity extends AppCompatActivity {
         SharedPreferences pref = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         String id = pref.getString(ID_USER, "");
 
-        Call<List<Transaksi>> call = apiInterface.pesananOnlineGet(Integer.parseInt(id)) ;
-        call.enqueue(new Callback<List<Transaksi>>() {
-            @Override
-            public void onResponse(Call<List<Transaksi>> call, Response<List<Transaksi>> response) {
-                dialog.dismiss();
-                List<Transaksi> listTransaksi = response.body();
+        Call<List<Transaksi>> call = null;
+        if (id != null) {
+            call = apiInterface.pesananOnlineGet(Integer.parseInt(id));
+        }
+        if (call != null) {
+            call.enqueue(new Callback<List<Transaksi>>() {
+                @Override
+                public void onResponse(Call<List<Transaksi>> call, Response<List<Transaksi>> response) {
+                    dialog.dismiss();
+                    List<Transaksi> listTransaksi = response.body();
 
-                pesananAdapter = new PesananAdapter(getApplicationContext(), listTransaksi, ListPesananActivity.this);
-                recyclerView.setAdapter(pesananAdapter);
-                pesananAdapter.notifyDataSetChanged();
+                    pesananAdapter = new PesananAdapter(getApplicationContext(), listTransaksi, ListPesananActivity.this);
+                    recyclerView.setAdapter(pesananAdapter);
+                    pesananAdapter.notifyDataSetChanged();
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<List<Transaksi>> call, Throwable t) {
-                dialog.dismiss();
-                Log.v("cik",t.getMessage());
-                Toast.makeText(ListPesananActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<List<Transaksi>> call, Throwable t) {
+                    dialog.dismiss();
+                    Log.v("cik",t.getMessage());
+                    Toast.makeText(ListPesananActivity.this, "Terjadi Kesalahan Tidak Terduga", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override

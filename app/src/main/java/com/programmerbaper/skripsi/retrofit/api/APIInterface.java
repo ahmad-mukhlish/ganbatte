@@ -33,11 +33,11 @@ public interface APIInterface {
     @FormUrlEncoded
     @POST("saveTokenByIDPost")
     Call<String> saveTokenByIDPost(@Field("id_pedagang") int idPedagang,
-                                   @Field("fcm_token") String fcmToken) ;
+                                   @Field("fcm_token") String fcmToken);
 
     @FormUrlEncoded
     @POST("renullTokenPost")
-    Call<String> renullTokenPost(@Field("id_pedagang") int idPedagang) ;
+    Call<String> renullTokenPost(@Field("id_pedagang") int idPedagang);
 
     @GET("transaksiByIDGet/{id_transaksi}")
     Call<Transaksi> transaksiByIDGet(@Path("id_transaksi") int idTransaksi);
@@ -52,7 +52,12 @@ public interface APIInterface {
     @FormUrlEncoded
     @POST("notifSelesaiPost")
     Call<String> notifSelesaiPost(@Field("id_transaksi") int idTransaksi,
-                                @Field("id_pembeli") int idPembeli,
-                                @Field("id_pedagang") int idPedagang);
+                                  @Field("id_pembeli") int idPembeli,
+                                  @Field("id_pedagang") int idPedagang);
+
+    @FormUrlEncoded
+    @POST("updateTransaksiPost")
+    Call<String> updateTransaksiPost(@Field("id_transaksi") int transaksi,
+                                     @Field("cuaca") String cuaca);
 
 }
