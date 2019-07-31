@@ -360,6 +360,7 @@ public class DetailTransaksiActivity extends AppCompatActivity implements OnMapR
         call.enqueue(new Callback<Jarak>() {
             @Override
             public void onResponse(Call<Jarak> call, Response<Jarak> response) {
+                Log.v("cikandes",response.body().getRows().get(0).getElements().get(0).getDistance().getValue()+"");
                 if (response.body().getRows().get(0).getElements().get(0).getDistance().getValue() < 200) {
                     dekat = true;
                     sendNotifDekat();

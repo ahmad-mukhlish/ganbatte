@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
@@ -28,6 +29,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.programmerbaper.skripsi.R;
 import com.programmerbaper.skripsi.activities.CuacaActivity;
+import com.programmerbaper.skripsi.activities.DagangActivity;
 import com.programmerbaper.skripsi.activities.DetailTransaksiActivity;
 import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.misc.Helper;
@@ -56,16 +58,42 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         createNotificationChannel();
-        getTransaksiByID(remoteMessage);
+        if (remoteMessage.getData().get("jenis").equals("pesan")) {
+            getTransaksiByID(remoteMessage);
+        } else if (remoteMessage.getData().get("jenis").equals("subscribe")) {
+            showNotification(null, remoteMessage, remoteMessage.getData().get("jenis"));
+        } else {
+            showNotification(null, remoteMessage, remoteMessage.getData().get("jenis"));
+
+            if (CurrentActivityContext.getActualContext() != null) {
+                //Let this be the code in your n'th level thread from main UI thread
+                Handler h = new Handler(Looper.getMainLooper());
+                h.post(new Runnable() {
+                    public void run() {
+                        Toast.makeText(CurrentActivityContext.getActualContext(), "Transaksi telah dibatalkan", Toast.LENGTH_SHORT)
+                                .show();
+                        Intent intent = new Intent(CurrentActivityContext.getActualContext(), DagangActivity.class);
+                        CurrentActivityContext.getActualContext().startActivity(intent);
+                    }
+                });
+            }
+
+        }
 
 
     }
 
-    private void showNotification(Transaksi transaksi, RemoteMessage remoteMessage) {
+    private void showNotification(Transaksi transaksi, RemoteMessage remoteMessage, String jenis) {
 
         // Create an Intent for the activity you want to start
-        Intent resultIntent = new Intent(this, DetailTransaksiActivity.class);
-        resultIntent.putExtra(DATA_TRANSAKSI, transaksi);
+        Intent resultIntent;
+        if (jenis.equals("pesan")) {
+            resultIntent = new Intent(this, DetailTransaksiActivity.class);
+            resultIntent.putExtra(DATA_TRANSAKSI, transaksi);
+        } else {
+            resultIntent = new Intent(this, DagangActivity.class);
+        }
+
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
 
@@ -118,7 +146,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             public void onResponse(Call<Transaksi> call, Response<Transaksi> response) {
 
                 final Transaksi transaksi = response.body();
-                showNotification(transaksi, remoteMessage);
+                showNotification(transaksi, remoteMessage, remoteMessage.getData().get("jenis"));
                 if (CurrentActivityContext.getActualContext() != null) {
                     //Let this be the code in your n'th level thread from main UI thread
 
@@ -168,10 +196,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         alamat2.setText(getAlamat2(transaksi.getAlamat()));
 
         TextView totalHarga = rootDialog.findViewById(R.id.dialogue_total);
-        totalHarga.setText(Helper.formatter(transaksi.getHarga()+""));
+        totalHarga.setText(Helper.formatter(transaksi.getHarga() + ""));
 
         TextView items = rootDialog.findViewById(R.id.dialogue_items);
-        items.setText("("+transaksi.getItem()+" item)");
+        items.setText("(" + transaksi.getItem() + " item)");
 
 
         Button no = rootDialog.findViewById(R.id.no);
