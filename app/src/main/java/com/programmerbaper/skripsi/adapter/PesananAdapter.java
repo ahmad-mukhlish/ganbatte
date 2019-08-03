@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
@@ -12,9 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -23,8 +27,13 @@ import com.programmerbaper.skripsi.activities.DetailTransaksiActivity;
 import com.programmerbaper.skripsi.misc.Helper;
 import com.programmerbaper.skripsi.model.api.Transaksi;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.programmerbaper.skripsi.misc.Config.BASE_URL;
 import static com.programmerbaper.skripsi.misc.Config.DATA_TRANSAKSI;
@@ -66,6 +75,7 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.PesananV
     public void onBindViewHolder(final PesananAdapter.PesananViewHolder pedagangViewHolder, int i) {
         initProgressDialog();
         final Transaksi transaksi = listTransaksi.get(i);
+
         Glide.with(context)
                 .load(BASE_URL + "storage/pembeli-profiles/" + transaksi.getFoto())
                 .placeholder(R.drawable.pembeli_holder)
@@ -94,15 +104,56 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.PesananV
             }
         });
 
-        pedagangViewHolder.view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(context, DetailTransaksiActivity.class);
-                intent.putExtra(DATA_TRANSAKSI, transaksi);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
+        if (transaksi.getPreOrderStatus() == 1) {
+            if (cekTanggal(transaksi.getTanggal())) {
+
+                //transaksi aman, boleh di klik
+
+                pedagangViewHolder.view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context, DetailTransaksiActivity.class);
+                        intent.putExtra(DATA_TRANSAKSI, transaksi);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+
+                pedagangViewHolder.cardView.setCardBackgroundColor(Color.parseColor("#e8f5e9"));
+                pedagangViewHolder.tanggal.setText(getTanggal(transaksi.getTanggal()));
+                pedagangViewHolder.tanggal.setTextColor(Color.parseColor("#4caf50"));
+
+            } else {
+
+                pedagangViewHolder.view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, "Belum saatnya memenuhi pesanan", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                pedagangViewHolder.cardView.setCardBackgroundColor(Color.parseColor("#ffebee"));
+                pedagangViewHolder.tanggal.setText(getTanggal(transaksi.getTanggal()));
+                pedagangViewHolder.tanggal.setTextColor(Color.parseColor("#f44336"));
+
             }
-        });
+
+            pedagangViewHolder.tanggal.setVisibility(View.VISIBLE);
+
+        } else {
+
+            pedagangViewHolder.cardView.setCardBackgroundColor(Color.parseColor("#ffffff"));
+            pedagangViewHolder.tanggal.setVisibility(View.GONE);
+            pedagangViewHolder.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, DetailTransaksiActivity.class);
+                    intent.putExtra(DATA_TRANSAKSI, transaksi);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
+            });
+        }
 
 
     }
@@ -116,8 +167,9 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.PesananV
     public class PesananViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView image, wa, telfon, chat;
-        private TextView nama, alamat1, alamat2, totalHarga, items;
+        private TextView nama, alamat1, alamat2, totalHarga, items, tanggal;
         private View view;
+        private CardView cardView;
 
         public PesananViewHolder(View itemView) {
             super(itemView);
@@ -132,8 +184,8 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.PesananV
             wa = itemView.findViewById(R.id.wa);
             telfon = itemView.findViewById(R.id.telfon);
             chat = itemView.findViewById(R.id.chat);
-
-
+            cardView = itemView.findViewById(R.id.card_pesanan);
+            tanggal = itemView.findViewById(R.id.tanggal);
         }
     }
 
@@ -147,7 +199,6 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.PesananV
     }
 
     private String getAlamat2(String alamat) {
-
 
         List<String> alamatList = Arrays.asList(alamat.split(",[ ]*"));
 
@@ -173,4 +224,40 @@ public class PesananAdapter extends RecyclerView.Adapter<PesananAdapter.PesananV
     }
 
 
+    private boolean cekTanggal(String tanggalPesanan) {
+
+        boolean hasil = false;
+
+        SimpleDateFormat sql = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+
+            Date pickan = sql.parse(tanggalPesanan);
+            Date today = Calendar.getInstance().getTime();
+
+            hasil = (pickan.before(today) || pickan.equals(today));
+            Log.v("cik", sql.format(pickan));
+            Log.v("cik", sql.format(today));
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return hasil;
+    }
+
+    private String getTanggal(String tanggalPesanan) {
+
+        String hasil = "";
+        SimpleDateFormat sql = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy", new Locale("ID"));
+
+        try {
+            Date tanggal = sql.parse(tanggalPesanan);
+            hasil = df.format(tanggal);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "PRE ORDER : " + hasil;
+    }
 }

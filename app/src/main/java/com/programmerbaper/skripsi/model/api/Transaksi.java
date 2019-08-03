@@ -10,25 +10,28 @@ public class Transaksi implements Parcelable {
 
     @SerializedName("id_transaksi")
     @Expose
-    private int idTransaksi;
+    private Integer idTransaksi;
+    @SerializedName("id_pedagang")
+    @Expose
+    private Integer idPedagang;
     @SerializedName("id_pembeli")
     @Expose
-    private int idPembeli;
-    @SerializedName("nama")
-    @Expose
-    private String nama;
-    @SerializedName("foto")
-    @Expose
-    private String foto;
-    @SerializedName("no_telp")
-    @Expose
-    private String noTelp;
+    private Integer idPembeli;
     @SerializedName("catatan")
     @Expose
     private String catatan;
+    @SerializedName("tanggal")
+    @Expose
+    private String tanggal;
     @SerializedName("pre_order_status")
     @Expose
-    private int preOrderStatus;
+    private Integer preOrderStatus;
+    @SerializedName("status")
+    @Expose
+    private Integer status;
+    @SerializedName("cuaca")
+    @Expose
+    private String cuaca;
     @SerializedName("alamat")
     @Expose
     private String alamat;
@@ -37,55 +40,63 @@ public class Transaksi implements Parcelable {
     private String area;
     @SerializedName("latitude")
     @Expose
-    private double latitude;
+    private Double latitude;
     @SerializedName("longitude")
     @Expose
-    private double longitude;
+    private Double longitude;
+    @SerializedName("rating")
+    @Expose
+    private Integer rating;
+    @SerializedName("username")
+    @Expose
+    private String username;
+    @SerializedName("password")
+    @Expose
+    private String password;
+    @SerializedName("nama")
+    @Expose
+    private String nama;
+    @SerializedName("no_telp")
+    @Expose
+    private String noTelp;
+    @SerializedName("email")
+    @Expose
+    private String email;
+    @SerializedName("foto")
+    @Expose
+    private String foto;
+    @SerializedName("fcm_token")
+    @Expose
+    private String fcmToken;
     @SerializedName("harga")
     @Expose
-    private int harga;
+    private Integer harga;
     @SerializedName("item")
     @Expose
-    private int item;
+    private Integer item;
 
-    public int getIdTransaksi() {
+    public Integer getIdTransaksi() {
         return idTransaksi;
     }
 
-    public void setIdTransaksi(int idTransaksi) {
+    public void setIdTransaksi(Integer idTransaksi) {
         this.idTransaksi = idTransaksi;
     }
 
-    public int getIdPembeli() {
+    public Integer getIdPedagang() {
+        return idPedagang;
+    }
+
+    public void setIdPedagang(Integer idPedagang) {
+        this.idPedagang = idPedagang;
+    }
+
+    public Integer getIdPembeli() {
         return idPembeli;
     }
 
-    public void setIdPembeli(int idPembeli) {
+    public void setIdPembeli(Integer idPembeli) {
         this.idPembeli = idPembeli;
-    }
-
-    public String getNama() {
-        return nama;
-    }
-
-    public void setNama(String nama) {
-        this.nama = nama;
-    }
-
-    public String getFoto() {
-        return foto;
-    }
-
-    public void setFoto(String foto) {
-        this.foto = foto;
-    }
-
-    public String getNoTelp() {
-        return noTelp;
-    }
-
-    public void setNoTelp(String noTelp) {
-        this.noTelp = noTelp;
     }
 
     public String getCatatan() {
@@ -96,12 +107,36 @@ public class Transaksi implements Parcelable {
         this.catatan = catatan;
     }
 
-    public int getPreOrderStatus() {
+    public String getTanggal() {
+        return tanggal;
+    }
+
+    public void setTanggal(String tanggal) {
+        this.tanggal = tanggal;
+    }
+
+    public Integer getPreOrderStatus() {
         return preOrderStatus;
     }
 
-    public void setPreOrderStatus(int preOrderStatus) {
+    public void setPreOrderStatus(Integer preOrderStatus) {
         this.preOrderStatus = preOrderStatus;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getCuaca() {
+        return cuaca;
+    }
+
+    public void setCuaca(String cuaca) {
+        this.cuaca = cuaca;
     }
 
     public String getAlamat() {
@@ -120,53 +155,126 @@ public class Transaksi implements Parcelable {
         this.area = area;
     }
 
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    public int getHarga() {
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getNama() {
+        return nama;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
+    public String getNoTelp() {
+        return noTelp;
+    }
+
+    public void setNoTelp(String noTelp) {
+        this.noTelp = noTelp;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public Integer getHarga() {
         return harga;
     }
 
-    public void setHarga(int harga) {
+    public void setHarga(Integer harga) {
         this.harga = harga;
     }
 
-    public int getItem() {
+    public Integer getItem() {
         return item;
     }
 
-    public void setItem(int item) {
+    public void setItem(Integer item) {
         this.item = item;
     }
 
 
     protected Transaksi(Parcel in) {
-        idTransaksi = in.readInt();
-        idPembeli = in.readInt();
-        nama = in.readString();
-        foto = in.readString();
-        noTelp = in.readString();
+        idTransaksi = in.readByte() == 0x00 ? null : in.readInt();
+        idPedagang = in.readByte() == 0x00 ? null : in.readInt();
+        idPembeli = in.readByte() == 0x00 ? null : in.readInt();
         catatan = in.readString();
-        preOrderStatus = in.readInt();
+        tanggal = in.readString();
+        preOrderStatus = in.readByte() == 0x00 ? null : in.readInt();
+        status = in.readByte() == 0x00 ? null : in.readInt();
+        cuaca = in.readString();
         alamat = in.readString();
         area = in.readString();
-        latitude = in.readDouble();
-        longitude = in.readDouble();
-        harga = in.readInt();
-        item = in.readInt();
+        latitude = in.readByte() == 0x00 ? null : in.readDouble();
+        longitude = in.readByte() == 0x00 ? null : in.readDouble();
+        rating = in.readByte() == 0x00 ? null : in.readInt();
+        username = in.readString();
+        password = in.readString();
+        nama = in.readString();
+        noTelp = in.readString();
+        email = in.readString();
+        foto = in.readString();
+        fcmToken = in.readString();
+        harga = in.readByte() == 0x00 ? null : in.readInt();
+        item = in.readByte() == 0x00 ? null : in.readInt();
     }
 
     @Override
@@ -176,19 +284,78 @@ public class Transaksi implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(idTransaksi);
-        dest.writeInt(idPembeli);
-        dest.writeString(nama);
-        dest.writeString(foto);
-        dest.writeString(noTelp);
+        if (idTransaksi == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(idTransaksi);
+        }
+        if (idPedagang == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(idPedagang);
+        }
+        if (idPembeli == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(idPembeli);
+        }
         dest.writeString(catatan);
-        dest.writeInt(preOrderStatus);
+        dest.writeString(tanggal);
+        if (preOrderStatus == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(preOrderStatus);
+        }
+        if (status == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(status);
+        }
+        dest.writeString(cuaca);
         dest.writeString(alamat);
         dest.writeString(area);
-        dest.writeDouble(latitude);
-        dest.writeDouble(longitude);
-        dest.writeInt(harga);
-        dest.writeInt(item);
+        if (latitude == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(latitude);
+        }
+        if (longitude == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(longitude);
+        }
+        if (rating == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(rating);
+        }
+        dest.writeString(username);
+        dest.writeString(password);
+        dest.writeString(nama);
+        dest.writeString(noTelp);
+        dest.writeString(email);
+        dest.writeString(foto);
+        dest.writeString(fcmToken);
+        if (harga == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(harga);
+        }
+        if (item == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(item);
+        }
     }
 
     @SuppressWarnings("unused")

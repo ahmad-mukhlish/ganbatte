@@ -71,6 +71,7 @@ public class ListPesananActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<List<Transaksi>> call, Response<List<Transaksi>> response) {
                     dialog.dismiss();
+
                     List<Transaksi> listTransaksi = response.body();
 
                     pesananAdapter = new PesananAdapter(getApplicationContext(), listTransaksi, ListPesananActivity.this);
