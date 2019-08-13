@@ -132,6 +132,8 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
 
             root.child("login").setValue(false);
 
+            renullTokenPost();
+
             //flush shared preferences
             SharedPreferences.Editor editor = pref.edit();
 
@@ -142,7 +144,7 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
             editor.putString(PASSWORD, "");
             editor.putString(FCM_TOKEN, "");
 
-            renullTokenPost();
+
 
             editor.commit();
 

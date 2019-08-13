@@ -52,7 +52,8 @@ public class CuacaActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         OWMInterface owmInterface = OWMClient.getApiClient().create(OWMInterface.class);
-        Call<Cuaca> call = owmInterface.getForecast((float) bundle.getDouble("lat"), (float) bundle.getDouble("lon"), API_KEY_OWM);
+        Call<Cuaca> call = owmInterface.getForecast((float) bundle.getDouble("lat"),
+                (float) bundle.getDouble("lon"), API_KEY_OWM);
 
         call.enqueue(new Callback<Cuaca>() {
             @Override
