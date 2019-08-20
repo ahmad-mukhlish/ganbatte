@@ -1,6 +1,7 @@
 package com.programmerbaper.skripsi.retrofit.api;
 
 
+import com.programmerbaper.skripsi.model.api.Area;
 import com.programmerbaper.skripsi.model.api.Makanan;
 import com.programmerbaper.skripsi.model.api.Pedagang;
 import com.programmerbaper.skripsi.model.api.Transaksi;
@@ -60,4 +61,7 @@ public interface APIInterface {
     Call<String> updateTransaksiPost(@Field("id_transaksi") int transaksi,
                                      @Field("cuaca") String cuaca);
 
+    @GET("rekomendasiAreaGet/{tanggal}/{id_pedagang}")
+    Call<List<Area>> rekomendasiAreaGet(@Path("tanggal") String tanggal,
+                                        @Path("id_pedagang") String idPedagang);
 }

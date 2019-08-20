@@ -101,6 +101,10 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
                 intentToListPesanan();
             }
 
+            case R.id.area: {
+                intentToArea();
+            }
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -332,6 +336,12 @@ public class DagangActivity extends AppCompatActivity implements OnMapReadyCallb
         intent.putExtra("lon", longitude);
         startActivity(intent);
     }
+
+    private void intentToArea() {
+        Intent intent = new Intent(this, AreaActivity.class);
+        startActivity(intent);
+    }
+
 
     private void intentToListPesanan() {
         Intent intent = new Intent(this, ListPesananActivity.class);

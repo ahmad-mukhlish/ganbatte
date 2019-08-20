@@ -14,7 +14,6 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,16 +37,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.programmerbaper.skripsi.R;
-import com.programmerbaper.skripsi.adapter.CuacaAdapter;
 import com.programmerbaper.skripsi.adapter.DetailAdapter;
 import com.programmerbaper.skripsi.misc.CurrentActivityContext;
 import com.programmerbaper.skripsi.misc.Helper;
 import com.programmerbaper.skripsi.misc.directionhelpers.FetchURL;
 import com.programmerbaper.skripsi.misc.directionhelpers.TaskLoadedCallback;
-import com.programmerbaper.skripsi.model.api.DetailTransaksi;
 import com.programmerbaper.skripsi.model.api.Makanan;
 import com.programmerbaper.skripsi.model.api.Transaksi;
-import com.programmerbaper.skripsi.model.cuaca.Cuaca;
 import com.programmerbaper.skripsi.model.jarak.Jarak;
 import com.programmerbaper.skripsi.retrofit.api.APIClient;
 import com.programmerbaper.skripsi.retrofit.api.APIInterface;
@@ -63,9 +58,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
